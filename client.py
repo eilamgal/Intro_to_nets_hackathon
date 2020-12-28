@@ -1,4 +1,3 @@
-import scapy
 import struct 
 
 
@@ -15,9 +14,7 @@ def play_with_server(server_socket):
 
 
 if __name__ == "__main__":
-    print()
     while True:
         server_ip = look_for_server()
         server_socket = connect_to_server(server_ip)
-        play_with_server(server_socket)
-
+        play_with_server(server_socket)    
