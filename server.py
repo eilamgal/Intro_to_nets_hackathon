@@ -147,7 +147,7 @@ Group 1:
                 data = s.recv(8)
                 print(data)
                 if data:
-                    teams_dictionary[socket_ips[connection]][2] = (teams_dictionary[socket_ips[connection]][0],teams_dictionary[socket_ips[connection]][1],teams_dictionary[socket_ips[connection]][2]+1)
+                    teams_dictionary[socket_ips[connection]] = (teams_dictionary[socket_ips[connection]][0],teams_dictionary[socket_ips[connection]][1],teams_dictionary[socket_ips[connection]][2]+1)
                 inputs.remove(s)
                 s.close()
         for s in exceptional:
