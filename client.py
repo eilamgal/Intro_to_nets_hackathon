@@ -38,25 +38,29 @@ def connect_to_server(server_address):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect(server_address)
         client_socket.send(b'Moshiki\n')
-        print(str(client_socket.recv(1024),"utf-8"))
+        message = str(client_socket.recv(1024),"utf-8")
+
+        end_message_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        end_message_socket.setblocking(0)
+        end_message_socket.connect(server_address)
+
+        print(message)
+
         # print("connected successfully")
 
-        return client_socket
+        return end_message_socket
     except ConnectionRefusedError as e:
         print("Could not send team name! Trying to find a different server...", e)
         return None
 
 
-def play_with_server(server_address):
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(server_address)
-        client_socket.setblocking(0)
+def play_with_server(server_address, end_message_socket):
         inputs = [client_socket]
         outputs = []
         while 1:
             readable, writable, exceptional = select.select(inputs, outputs, [])
             for s in readable:
-                if s is client_socket:  # New client is trying to connect
+                if s is end_message_socket:  # New client is trying to connect
                     message = s.recv(1024)
                     print(str(message))
                     break
@@ -75,7 +79,7 @@ if __name__ == "__main__":
         server_connection = None
         while(server_connection == None):
             server_address = look_for_server()
-            server_connection = connect_to_server(server_address)
-            play_with_server(server_address)
+            end_message_socket = connect_to_server(server_address)
+            play_with_server(server_address, end_message_socket)
     finally:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)

@@ -5,7 +5,7 @@ import concurrent.futures
 import itertools
 
 TCP_PORT= 2018
-TIME_LIMIT = 4
+TIME_LIMIT = 10
 
 def broadcast(time_limit=TIME_LIMIT, interval=0.6):
     print("Broadcasting")
@@ -125,6 +125,10 @@ Group 1:
     inputs = [server]
     socket_ips = {}
 
+    # end_sockets = []
+    # for i in range(len(teams_dictionary.keys())):
+    #     end_sockets.append()
+
     while inputs and time.time() - start_time < time_limit:  # 
         # print("loop")
         readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time))) 
@@ -135,7 +139,6 @@ Group 1:
                 connection.setblocking(0)
                 inputs.append(connection)
                 socket_ips[connection] = client_address[0]
-                teams_dictionary[socket_ips[connection]] = (0, client_address[0])
 
             else:  # The client should sent team's name
                 data = s.recv(8)
@@ -146,6 +149,12 @@ Group 1:
         for s in exceptional:
             inputs.remove(s)
             s.close()
+
+    for open_socket in sockets:
+        if open_socket != server:
+            open_socket.sendall(bytes(message,"utf-8"))
+            open_socket.setblocking(1)
+            open_socket.close()
 
     print(inputs)
     server.setblocking(1)
