@@ -72,7 +72,7 @@ def play_with_server(server_address, my_port):
         for s in readable:
             if s is listen_socket:  # New client is trying to connect
                 connection, client_address = s.accept()
-                print(client_address[0], "connected")
+                # print(client_address[0], "connected")
                 connection.setblocking(0)
                 inputs.append(connection)
                 stop= True
@@ -80,7 +80,7 @@ def play_with_server(server_address, my_port):
                 s.close()
 
             else:  # The client should sent team's name
-                print("receiving")
+                # print("receiving")
                 data = s.recv(1024)
                 print(str(data,"utf-8"))
                 s.close()

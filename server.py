@@ -140,7 +140,7 @@ Group 1:
         for s in readable:
             if s is server:  # New client is trying to connect
                 connection, client_address = s.accept()
-                print(client_address[0], "connected")
+                # print(client_address[0], "connected")
                 connection.setblocking(0)
                 inputs.append(connection)
                 socket_ips[connection] = client_address[0]
