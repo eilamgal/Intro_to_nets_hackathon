@@ -71,6 +71,10 @@ def play_with_server(server_address, end_message_socket):
                 c = sys.stdin.read(1)
                 keys_socket.send(bytes(c))
 
+        for open_socket in inputs:
+            open_socket.setblocking(1)
+            open_socket.close()
+
 
 if __name__ == "__main__":
     old_settings = termios.tcgetattr(sys.stdin)
