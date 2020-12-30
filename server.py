@@ -126,10 +126,10 @@ Group 1:
     socket_ips = {}
 
     end_sockets = []
-    server.setblocking(1)
+    # server.setblocking(1)
     for i in range(len(teams_dictionary.keys())):
         end_sockets.append(server.accept())
-    server.setblocking(0)
+    # server.setblocking(0)
 
 
     while inputs and time.time() - start_time < time_limit:  # 
@@ -145,7 +145,7 @@ Group 1:
 
             else:  
                 data = s.recv(8)
-                print(data)
+                # print(data)
                 if data:
                     teams_dictionary[socket_ips[connection]] = (teams_dictionary[socket_ips[connection]][0],teams_dictionary[socket_ips[connection]][1],teams_dictionary[socket_ips[connection]][2]+1)
                 inputs.remove(s)

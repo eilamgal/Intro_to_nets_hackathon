@@ -9,7 +9,7 @@ import termios
 
 def _is_data():
     flag =select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
-    print('is data:',flag)
+    # print('is data:',flag)
     return flag
 
 
@@ -75,7 +75,7 @@ def play_with_server(server_address, end_message_socket):
             keys_socket.connect(server_address)
             keys_socket.setblocking(0)
             c = sys.stdin.read(1)
-            print(c)
+            # print(c)
             keys_socket.send(bytes(c,"utf-8"))                
 
     for open_socket in inputs:
