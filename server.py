@@ -7,16 +7,13 @@ import scapy
 
 def broadcast(time_limit=10, interval=1, tcp_port=40440):
     start_time = time.time()
-
     socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     while True:
         try:
             socket_server.bind((socket.gethostname(), tcp_port))
             break
         except Exception as massage: 
-            print('Bind failed. Message', massage) 
-
+            print('Bind failed. Message', massage)
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
     udp_server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)

@@ -8,17 +8,16 @@ def look_for_server():
     # Set broadcasting mode
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     client.bind(("", 13117))
-
     while True:
         try:
             data, addr = client.recvfrom(10)
-            cookie, msg_type, port_number  = struct.unpack('IBH', data)
+            cookie, msg_type, port_number = struct.unpack('IBH', data)
             if cookie == 0xfeedbeef and msg_type == 0x2 and port_number > 0:
-                print("received ", hex(cookie), hex(msg_type), port_number,"from", addr[0])
+                print("received ", hex(cookie), hex(msg_type), port_number, "from", addr[0])
                 return addr[0], port_number
             else:
                 print("Bad argument received!")
-        except (OSError, struct.error) : 
+        except (OSError, struct.error):
             print("Unexpected message format")
 
 
