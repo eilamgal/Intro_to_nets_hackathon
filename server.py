@@ -143,8 +143,9 @@ Group 1:
                 inputs.append(connection)
                 socket_ips[connection] = client_address[0]
 
-            else:  # The client should sent team's name
+            else:  
                 data = s.recv(8)
+                print(data)
                 if data:
                     teams_dictionary[socket_ips[connection]][2] += 1
                 inputs.remove(s)

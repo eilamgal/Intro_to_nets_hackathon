@@ -9,7 +9,7 @@ import termios
 
 def _is_data():
     flag =select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
-    print(flag)
+    print('is data:',flag)
     return flag
 
 
@@ -57,11 +57,8 @@ def connect_to_server(server_address):
 
 
 def play_with_server(server_address, end_message_socket):
-    end_message_socket.setblocking(0)
-    keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    keys_socket.setblocking(0)
-    keys_socket.connect(server_address)
-    inputs = [end_message_socket, keys_socket]
+    end_message_socket.setblocking(0)  
+    inputs = [end_message_socket]
     outputs = []
     while 1:
         readable, writable, exceptional = select.select(inputs, outputs, [],1)
@@ -72,16 +69,15 @@ def play_with_server(server_address, end_message_socket):
                 message = s.recv(1024)
                 print(str(message,"utf-8"))
                 break
-            else:
-                if _is_data():
-                    c = sys.stdin.read(1)
-                    print(c)
-                    s.send(bytes(c))
-                    s.close()
-                    keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    keys_socket.setblocking(0)
-                    keys_socket.connect(server_address)
-                    inputs.insert(keys_socket)
+
+        if _is_data():
+            keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            keys_socket.setblocking(0)
+            keys_socket.connect(server_address)
+            inputs.insert(keys_socket)
+            c = sys.stdin.read(1)
+            print(c)
+            keys_socket.send(bytes(c))                
 
     for open_socket in inputs:
         open_socket.setblocking(1)
