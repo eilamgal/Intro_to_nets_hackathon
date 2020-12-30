@@ -58,10 +58,10 @@ def listen_for_clients(time_limit=TIME_LIMIT):
                 team_names[connection] = (None, client_address[0])
 
             else:  # The client should sent team's name
-                data= s.recv(1024)
+                data = s.recv(1024)
                 if team_names[s][0] == None:
                     if data:
-                        team_names[s] = (str(data,"utf-8")[0:-1], team_names[s][1])
+                        team_names[s] = (str(data, "utf-8")[0:-1], team_names[s][1])
                         # print(team_names)       
                     else:
                         inputs.remove(s)

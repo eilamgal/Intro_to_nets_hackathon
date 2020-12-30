@@ -45,31 +45,35 @@ def connect_to_server(server_address):
         return None
 
 
-def play_with_server(client_socket, server_address):
-
-    time.sleep(10)
-    # TODO try and catch
-    massage = client_socket.recv()
-    if not massage:
-        return
-    print(massage)
-    old_settings = termios.tcgetattr(sys.stdin)
-    try:
-        tty.setcbreak(sys.stdin.fileno())
-        end_time = time.time() + 10
-        while time.time() <= end_time:
+def play_with_server(server_address):
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect(server_address)
+        client_socket.setblocking(0)
+        inputs = [client_socket]
+        outputs = []
+        while not 1:
+            readable, writable, exceptional = select.select(inputs, outputs, [])
+            for s in readable:
+                if s is client_socket:  # New client is trying to connect
+                    message = s.recv()
+                    print(str(message))
+                    break
             if _is_data():
+                keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                keys_socket.connect(server_address)
+                keys_socket.setblocking(0)
                 c = sys.stdin.read(1)
-                client_socket.send(bytes(c))
-
-
-    finally:
-        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+                keys_socket.send(c)
 
 
 if __name__ == "__main__":
-    server_connection = None
-    while(server_connection == None):
-        server_address = look_for_server()
-        server_connection = connect_to_server(server_address)
-    # play_with_server(server_socket)
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+        server_connection = None
+        while(server_connection == None):
+            server_address = look_for_server()
+            server_connection = connect_to_server(server_address)
+            play_with_server(server_connection, server_address)
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
