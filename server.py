@@ -126,8 +126,11 @@ Group 1:
     socket_ips = {}
 
     end_sockets = []
+    server.setblocking(1)
     for i in range(len(teams_dictionary.keys())):
         end_sockets.append(server.accept())
+    server.setblocking(0)
+
 
     while inputs and time.time() - start_time < time_limit:  # 
         # print("loop")
