@@ -69,6 +69,7 @@ def play_with_server(server_address, end_message_socket):
                 print(str(message,"utf-8"))
                 break
         if _is_data():
+            print("connecting to send key")
             keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             keys_socket.setblocking(0)
             keys_socket.connect(server_address)
