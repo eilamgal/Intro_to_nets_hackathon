@@ -19,11 +19,11 @@ def look_for_server():
             else:
                 print("Bad argument received!")
         except (OSError, struct.error) : 
-            print("Unexpected message format")
+            print("Unexpected message  format")
 
 
 def connect_to_server(ip):
-    pass
+    pass 
 
 
 def play_with_server(server_socket):
