@@ -69,7 +69,7 @@ def play_with_server(server_address, end_message_socket):
                 keys_socket.connect(server_address)
                 keys_socket.setblocking(0)
                 c = sys.stdin.read(1)
-                keys_socket.send(c)
+                keys_socket.send(bytes(c))
 
 
 if __name__ == "__main__":
