@@ -60,7 +60,7 @@ def play_with_server(server_address, end_message_socket):
     print(end_message_socket.getsockname())
 
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    listen_socket.bind(('',end_message_socket.getsockname()[1]))
+    listen_socket.bind((end_message_socket.getpeername()[0],end_message_socket.getsockname()[1]))
 
     inputs = [end_message_socket]
     outputs = []
