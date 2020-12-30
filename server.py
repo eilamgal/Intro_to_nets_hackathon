@@ -140,6 +140,45 @@ def start_new_match(team_names, time_limit=TIME_LIMIT):
     return team_names.values()
 
 
+def start_new_match(server_socket):
+    start_time = time.time()
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setblocking(0)
+    readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time)))
+    for s in readable:
+        if s is server:  # New client is trying to connect
+            connection, client_address = s.accept()
+            print(client_address[0], "connected")
+            connection.setblocking(0)
+            inputs.append(connection)
+            team_names[connection] = (0, client_address[0])
+
+        else:  # The client should sent team's name
+            data = s.recv(1024)
+            if team_names[s][0] == None:
+                if data:
+                    team_names[s] = (str(data, "utf-8")[0:-1], team_names[s][1])
+                    # print(team_names)
+                else:
+                    inputs.remove(s)
+                    s.close()
+            else:
+                if data:
+                    print("Unexpected data from client")
+                inputs.remove(s)
+                s.close()
+
+    for s in exceptional:
+        inputs.remove(s)
+        s.close()
+
+
+print(inputs)
+server.setblocking(1)
+server.close()
+
+return team_names.values()
+
 
 
 

@@ -3,8 +3,8 @@ import socket
 import time
 import sys
 import select
-# import tty
-# import termios
+import tty
+import termios
 
 
 def _is_data():
