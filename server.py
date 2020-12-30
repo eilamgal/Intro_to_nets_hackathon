@@ -3,7 +3,7 @@ import select, socket, queue, time
 import scapy
 import concurrent.futures
 
-TCP_PORT= 59100
+TCP_PORT= 2018
 
 def broadcast(time_limit=10, interval=1):
     start_time = time.time()
@@ -27,27 +27,27 @@ def broadcast(time_limit=10, interval=1):
     # Set a timeout 
     udp_server.settimeout(0.3)
 
-    # while time.time() - start_time < time_limit:
-    packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
-    try:
-        udp_server.sendto(packed, ('255.255.255.255', 13117))  #TODO - check address
-    except socket.timeout:
-        print("Broadcast timout!")
-    time.sleep(interval)
+    while time.time() - start_time < time_limit:
+        packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
+        try:
+            udp_server.sendto(packed, ('<broadcast>', 13117))  #TODO - check address
+        except socket.timeout:
+            print("Broadcast timout!")
+        time.sleep(interval)
 
 
-def listen_for_clients(time_limit=2):
+def listen_for_clients(time_limit=5):
     start_time = time.time()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setblocking(0)
-    server.bind((socket.gethostname(), TCP_PORT))
-    server.listen(5)
+    server.bind(('', TCP_PORT))
+    server.listen(2)
     inputs = [server]
     team_names = {}  # {team_ip : team_name}
 
-    
-    while inputs and time.time() - start_time < time_limit:
-        readable, writable, exceptional = select.select(inputs, [], inputs,(time_limit - (time.time() - start_time)))
+    while inputs and time.time() - start_time < time_limit:  # 
+
+        readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time))) 
         for s in readable:
             if s is server:  # New client is trying to connect
                 connection, client_address = s.accept()
@@ -74,7 +74,7 @@ def listen_for_clients(time_limit=2):
         for s in exceptional:
             inputs.remove(s)
             s.close()
-        
+    
     return team_names.values()
 
 
@@ -128,13 +128,15 @@ def listen_for_clients(time_limit=2):
 
 
 if __name__ == "__main__":
-    timeout = 2
-    # broadcast(timeout)
-    # team_names = listen_for_clients(timeout)
+    timeout = 10
+    # broadcast(2)
+    # team_names = listen_for_clients(10)
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         broadcast = executor.submit(broadcast, timeout)
+        # print(broadcast.running)
         teams_future = executor.submit(listen_for_clients, timeout)
+        # print(teams_future.running)
         team_names = teams_future.result()
 
 
