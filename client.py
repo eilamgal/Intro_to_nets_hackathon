@@ -76,7 +76,8 @@ def play_with_server(server_address, my_port):
                 connection.setblocking(0)
                 inputs.append(connection)
                 stop= True
-                listen_socket.close()
+                inputs.remove(s)
+                s.close()
 
             else:  # The client should sent team's name
                 print("receiving")
