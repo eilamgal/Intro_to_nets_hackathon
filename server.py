@@ -4,8 +4,9 @@ import scapy
 import concurrent.futures
 
 TCP_PORT= 2018
+TIME_LIMIT = 10
 
-def broadcast(time_limit=10, interval=1):
+def broadcast(time_limit=TIME_LIMIT, interval=1):
     start_time = time.time()
 
 
@@ -36,7 +37,7 @@ def broadcast(time_limit=10, interval=1):
         time.sleep(interval)
 
 
-def listen_for_clients(time_limit=5):
+def listen_for_clients(time_limit=TIME_LIMIT):
     start_time = time.time()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setblocking(0)
@@ -128,7 +129,7 @@ def listen_for_clients(time_limit=5):
 
 
 if __name__ == "__main__":
-    timeout = 10
+    timeout = TIME_LIMIT
     # broadcast(2)
     # team_names = listen_for_clients(10)
 
