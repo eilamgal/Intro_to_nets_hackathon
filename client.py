@@ -53,7 +53,7 @@ def play_with_server(server_address):
         client_socket.setblocking(0)
         inputs = [client_socket]
         outputs = []
-        while not 1:
+        while 1:
             readable, writable, exceptional = select.select(inputs, outputs, [])
             for s in readable:
                 if s is client_socket:  # New client is trying to connect
@@ -76,6 +76,6 @@ if __name__ == "__main__":
         while(server_connection == None):
             server_address = look_for_server()
             server_connection = connect_to_server(server_address)
-            play_with_server(server_connection, server_address)
+            play_with_server(server_address)
     finally:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
