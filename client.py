@@ -57,7 +57,7 @@ def play_with_server(server_address):
             readable, writable, exceptional = select.select(inputs, outputs, [])
             for s in readable:
                 if s is client_socket:  # New client is trying to connect
-                    message = s.recv(4)
+                    message = s.recv(1024)
                     print(str(message))
                     break
             if _is_data():
