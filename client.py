@@ -38,8 +38,8 @@ def connect_to_server(server_address):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect(server_address)
         client_socket.send(b'Moshiki\n')
-
-        print("connected successfully")
+        print(str(client_socket.recv(1024),"utf-8"))
+        # print("connected successfully")
 
         return client_socket
     except ConnectionRefusedError as e:
@@ -47,25 +47,25 @@ def connect_to_server(server_address):
         return None
 
 
-# def play_with_server(client_socket, server_address):
+def play_with_server(client_socket, server_address):
 
-#     time.sleep(10)
-#     # TODO try and catch
-#     massage = client_socket.recv()
-#     if not massage:
-#         return
-#     print(massage)
-#     old_settings = termios.tcgetattr(sys.stdin)
-#     try:
-#         tty.setcbreak(sys.stdin.fileno())
-#         end_time = time.time() + 10
-#         while time.time() <= end_time:
-#             if _is_data():
-#                 c = sys.stdin.read(1)
-#                 client_socket.send(bytes(c))
+    time.sleep(10)
+    # TODO try and catch
+    massage = client_socket.recv()
+    if not massage:
+        return
+    print(massage)
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+        end_time = time.time() + 10
+        while time.time() <= end_time:
+            if _is_data():
+                c = sys.stdin.read(1)
+                client_socket.send(bytes(c))
 
-#     finally:
-#         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
 
 if __name__ == "__main__":
