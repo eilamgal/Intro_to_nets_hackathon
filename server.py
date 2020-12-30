@@ -150,7 +150,7 @@ Group 1:
             inputs.remove(s)
             s.close()
 
-    for open_socket in sockets:
+    for open_socket in inputs:
         if open_socket != server:
             open_socket.sendall(bytes("goodbye","utf-8"))
             open_socket.setblocking(1)
