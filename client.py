@@ -57,7 +57,10 @@ def connect_to_server(server_address):
 
 
 def play_with_server(server_address, end_message_socket):
-    end_message_socket.setblocking(0)  
+    print(end_message_socket.getpeername())
+    listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listen_socket.bind(('',end_message_socket.getpeername()))
+
     inputs = [end_message_socket]
     outputs = []
     while 1:
