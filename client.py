@@ -55,7 +55,7 @@ def connect_to_server(server_address):
 
 
 def play_with_server(server_address, end_message_socket):
-        inputs = [client_socket]
+        inputs = [end_message_socket]
         outputs = []
         while 1:
             readable, writable, exceptional = select.select(inputs, outputs, [])
