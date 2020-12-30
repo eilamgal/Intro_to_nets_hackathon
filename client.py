@@ -23,7 +23,7 @@ def look_for_server():
             continue
 
 
-def connect_to_server(server_address = ('172.18.0.18', 2018)):
+def connect_to_server(server_address):
     print(server_address)
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
