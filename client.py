@@ -62,7 +62,7 @@ def play_with_server(server_address, end_message_socket):
             for s in readable:
                 if s is end_message_socket:  # New client is trying to connect
                     message = s.recv(1024)
-                    print(str(message))
+                    print(str(message,"utf-8"))
                     break
             if _is_data():
                 keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

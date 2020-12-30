@@ -155,8 +155,8 @@ Group 1:
             open_socket.sendall(bytes("goodbye","utf-8"))
             open_socket.setblocking(1)
             open_socket.close()
-
-    print(inputs)
+    print(teams_dictionary)
+    # print(inputs)
     server.setblocking(1)
     server.close()
 
