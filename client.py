@@ -61,7 +61,7 @@ def play_with_server(server_address, end_message_socket):
     inputs = [end_message_socket]
     outputs = []
     while 1:
-        readable, writable, exceptional = select.select(inputs, outputs, [])
+        readable, writable, exceptional = select.select(inputs, outputs, [],1)
         print(readable)
         for s in readable:
             if s is end_message_socket:  # New client is trying to connect
