@@ -125,9 +125,9 @@ Group 1:
     inputs = [server]
     socket_ips = {}
 
-    # end_sockets = []
-    # for i in range(len(teams_dictionary.keys())):
-    #     end_sockets.append()
+    end_sockets = []
+    for i in range(len(teams_dictionary.keys())):
+        end_sockets.append(server.accept())
 
     while inputs and time.time() - start_time < time_limit:  # 
         # print("loop")
