@@ -76,7 +76,7 @@ def play_with_server(server_address, end_message_socket):
             keys_socket.setblocking(0)
             c = sys.stdin.read(1)
             print(c)
-            keys_socket.send(bytes(c))                
+            keys_socket.send(bytes(c,"utf-8"))                
 
     for open_socket in inputs:
         open_socket.setblocking(1)
