@@ -152,7 +152,7 @@ Group 1:
 
     for open_socket in sockets:
         if open_socket != server:
-            open_socket.sendall(bytes(message,"utf-8"))
+            open_socket.sendall(bytes("goodbye","utf-8"))
             open_socket.setblocking(1)
             open_socket.close()
 

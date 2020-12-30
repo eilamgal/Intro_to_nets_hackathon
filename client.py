@@ -41,7 +41,7 @@ def connect_to_server(server_address):
         message = str(client_socket.recv(1024),"utf-8")
 
         end_message_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        end_message_socket.setblocking(0)
+        # end_message_socket.setblocking(0)
         end_message_socket.connect(server_address)
 
         print(message)
