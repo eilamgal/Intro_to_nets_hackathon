@@ -5,8 +5,9 @@ import queue
 import scapy
 
 
-def broadcast(time_limit=10, interval=1, tcp_port=40440):
+def broadcast(time_limit=10, interval=1, tcp_port=80):
     start_time = time.time()
+
 
     socket_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -15,7 +16,10 @@ def broadcast(time_limit=10, interval=1, tcp_port=40440):
             socket_server.bind((socket.gethostname(), tcp_port))
             break
         except Exception as massage: 
-            print('Bind failed. Message', massage) 
+            print('Bind failed. Message', massage)
+
+    socket_server.listen(5)
+ 
 
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
@@ -28,17 +32,20 @@ def broadcast(time_limit=10, interval=1, tcp_port=40440):
         packed = struct.pack('IBH', 0xfeedbeef, 0x2, tcp_port)  # ? +i ? Message to broadcast : Magic coockie, message type, and port to connect through TCP
         # i += 1  # next client to 
         try:
-            udp_server.sendto(packed, (socket.gethostname(), 13117))
+            udp_server.sendto(packed, ('255.255.255.255', 13117))  #TODO - check address
         except socket.timeout:
             print("Broadcast timout!")
-            
+        (client_socket, address) = socket_server.accept()
+        data = client_socket.recv(1024)
+        print(address, data)
         time.sleep(interval)
 
 
 
 if __name__ == "__main__":
-    thread_1 = broadcast()
-    thread_2 = listen_for_clients()
-    play()
+    broadcast()
+    # thread_1 = broadcast()
+    # thread_2 = listen_for_clients()
+    # play()
 
 
