@@ -66,8 +66,8 @@ def play_with_server(server_address, end_message_socket):
                     break
             if _is_data():
                 keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                keys_socket.connect(server_address)
                 keys_socket.setblocking(0)
+                keys_socket.connect(server_address)
                 c = sys.stdin.read(1)
                 keys_socket.send(bytes(c))
 
