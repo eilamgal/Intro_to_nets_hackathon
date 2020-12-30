@@ -128,7 +128,7 @@ Group 1:
     end_sockets = []
     server.setblocking(1)
     for i in range(len(teams_dictionary.keys())):
-        end_sockets.insert(server.accept())
+        end_sockets.append(server.accept())
     print(end_sockets)
     server.setblocking(0)
 
