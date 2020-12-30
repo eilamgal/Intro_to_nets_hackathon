@@ -62,7 +62,7 @@ def play_with_server(server_address, my_port):
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listen_socket.bind(('', my_port))
     listen_socket.listen(5)
-    
+
     inputs = [listen_socket]
     outputs = []
     stop = False
@@ -76,6 +76,7 @@ def play_with_server(server_address, my_port):
                 connection.setblocking(0)
                 inputs.append(connection)
                 stop= True
+                listen_socket.close()
 
             else:  # The client should sent team's name
                 print("receiving")
@@ -83,7 +84,7 @@ def play_with_server(server_address, my_port):
                 print(str(data,"utf-8"))
                 s.close()
                 inputs.remove(s)
-                break
+                return
 
         if _is_data() and not stop:
             keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -91,7 +92,8 @@ def play_with_server(server_address, my_port):
             keys_socket.setblocking(0)
             c = sys.stdin.read(1)
             # print(c)
-            keys_socket.send(bytes(c,"utf-8"))                
+            keys_socket.send(bytes(c,"utf-8"))
+            keys_socket.close()                
 
     for open_socket in inputs:
         open_socket.setblocking(1)
