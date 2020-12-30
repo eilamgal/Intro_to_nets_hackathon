@@ -1,5 +1,14 @@
 import struct 
 import socket
+import time
+import sys
+import select
+import tty
+import termios
+
+
+def _is_data():
+    return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
 
 
 def look_for_server():
@@ -30,12 +39,30 @@ def connect_to_server(server_address):
     return client_socket
 
 
-def play_with_server(server_socket):
-    pass
+def play_with_server(client_socket, server_address):
+
+    time.sleep(10)
+    # TODO try and catch
+    massage = client_socket.recv()
+    if not massage:
+        return
+    print(massage)
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+        end_time = time.time() + 10
+        while time.time() <= end_time:
+            if _is_data():
+                c = sys.stdin.read(1)
+                client_socket.send(bytes(c))
+
+
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
 
 if __name__ == "__main__":
     while True:
         server_address = look_for_server()
         client_socket = connect_to_server(server_address)
-        # play_with_server(server_socket)    
+        # play_with_server(server_socket, server_address)
