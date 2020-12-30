@@ -57,27 +57,29 @@ def connect_to_server(server_address):
 
 
 def play_with_server(server_address, end_message_socket):
-        inputs = [end_message_socket]
-        outputs = []
-        while 1:
-            readable, writable, exceptional = select.select(inputs, outputs, [])
-            for s in readable:
-                if s is end_message_socket:  # New client is trying to connect
-                    message = s.recv(1024)
-                    print(str(message,"utf-8"))
-                    break
-            if _is_data():
-                keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                keys_socket.setblocking(0)
-                keys_socket.connect(server_address)
-                print("connected - sending key")
-                c = sys.stdin.read(1)
-                print(c)
-                keys_socket.send(bytes(c))
+    end_message_socket.setblocking(0)
+    inputs = [end_message_socket]
+    outputs = []
+    while 1:
+        readable, writable, exceptional = select.select(inputs, outputs, [])
+        for s in readable:
+            if s is end_message_socket:  # New client is trying to connect
+                print("receiving")
+                message = s.recv(1024)
+                print(str(message,"utf-8"))
+                break
+        if _is_data():
+            keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            keys_socket.setblocking(0)
+            keys_socket.connect(server_address)
+            print("connected - sending key")
+            c = sys.stdin.read(1)
+            print(c)
+            keys_socket.send(bytes(c))
 
-        for open_socket in inputs:
-            open_socket.setblocking(1)
-            open_socket.close()
+    for open_socket in inputs:
+        open_socket.setblocking(1)
+        open_socket.close()
 
 
 if __name__ == "__main__":
