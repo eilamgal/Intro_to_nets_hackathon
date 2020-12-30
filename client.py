@@ -8,7 +8,9 @@ import termios
 
 
 def _is_data():
-    return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
+    flag =select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
+    print(flag)
+    return flag
 
 
 def look_for_server():
@@ -68,6 +70,7 @@ def play_with_server(server_address, end_message_socket):
                 keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 keys_socket.setblocking(0)
                 keys_socket.connect(server_address)
+                print("connected - sending key")
                 c = sys.stdin.read(1)
                 print(c)
                 keys_socket.send(bytes(c))
