@@ -111,11 +111,14 @@ Group 1:
     
     message += "Start pressing keys on your keyboard as fast as you can!!"
 
+    end_addresses = []
     print(message) 
     for open_socket in sockets:
         if open_socket != server:
             open_socket.sendall(bytes(message,"utf-8"))
             open_socket.setblocking(1)
+            print(open_socket.getpeername())
+            end_addresses.append(open_socket.getpeername())
             open_socket.close()
 
 
@@ -125,12 +128,11 @@ Group 1:
     inputs = [server]
     socket_ips = {}
 
-    end_sockets = []
-    server.setblocking(1)
-    for i in range(len(teams_dictionary.keys())):
-        end_sockets.append(server.accept()[0])
-    server.setblocking(0)
-
+    # end_sockets = []
+    # server.setblocking(1)
+    # for i in range(len(teams_dictionary.keys())):
+    #     end_sockets.append(server.accept()[0])
+    # server.setblocking(0)
 
     while inputs and time.time() - start_time < time_limit:  # 
         # print("loop")
@@ -154,11 +156,13 @@ Group 1:
             inputs.remove(s)
             s.close()
 
-    for open_socket in end_sockets:
-        if open_socket != server:
-            open_socket.sendall(bytes("goodbye","utf-8"))
-            open_socket.setblocking(1)
-            open_socket.close()
+    for address in end_addresses:
+        open_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        open_socket.connect(address)
+        open_socket.sendall(bytes("goodbye","utf-8"))
+        open_socket.setblocking(1)
+        open_socket.close()
+
     print(teams_dictionary)
     # print(inputs)
     server.setblocking(1)

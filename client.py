@@ -40,41 +40,51 @@ def connect_to_server(server_address):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect(server_address)
         client_socket.send(b'Moshiki\n')
+        port = client_socket.getsockname()[1]
+        print(port)
         message = str(client_socket.recv(1024),"utf-8")
 
-        end_message_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # end_message_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # end_message_socket.setblocking(0)
-        end_message_socket.connect(server_address)
+        # end_message_socket.connect(server_address)
 
         print(message)
 
         # print("connected successfully")
 
-        return end_message_socket
+        return port
     except ConnectionRefusedError as e:
         print("Could not send team name! Trying to find a different server...", e)
         return None
 
 
-def play_with_server(server_address, end_message_socket):
-    print(end_message_socket.getsockname())
-
+def play_with_server(server_address, my_port):
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    listen_socket.bind('',end_message_socket.getsockname()[1])
+    listen_socket.bind('', my_port)
 
-    inputs = [end_message_socket]
+    inputs = [listen_socket]
     outputs = []
+    stop = False
     while 1:
         readable, writable, exceptional = select.select(inputs, outputs, [],1)
         print(readable)
         for s in readable:
-            if s is end_message_socket:  # New client is trying to connect
+            if s is listen_socket:  # New client is trying to connect
+                connection, client_address = s.accept()
+                print(client_address[0], "connected")
+                connection.setblocking(0)
+                inputs.append(connection)
+                stop= True
+
+            else:  # The client should sent team's name
                 print("receiving")
-                message = s.recv(1024)
-                print(str(message,"utf-8"))
+                data = s.recv(1024)
+                print(str(data,"utf-8"))
+                s.close()
+                inputs.remove(s)
                 break
 
-        if _is_data():
+        if _is_data() and not stop:
             keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             keys_socket.connect(server_address)
             keys_socket.setblocking(0)
@@ -94,7 +104,7 @@ if __name__ == "__main__":
         server_connection = None
         while(server_connection == None):
             server_address = look_for_server()
-            end_message_socket = connect_to_server(server_address)
-            play_with_server(server_address, end_message_socket)
+            my_port = connect_to_server(server_address)
+            play_with_server(server_address, my_port)
     finally:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
