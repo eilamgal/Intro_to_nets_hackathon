@@ -57,7 +57,9 @@ def connect_to_server(server_address):
 
 
 def play_with_server(server_address, end_message_socket):
+    print(end_message_socket.getsockname())
     print(end_message_socket.getpeername())
+
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listen_socket.bind(('',end_message_socket.getpeername()))
 
