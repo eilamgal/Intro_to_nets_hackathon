@@ -61,7 +61,8 @@ def connect_to_server(server_address):
 def play_with_server(server_address, my_port):
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listen_socket.bind(('', my_port))
-
+    listen_socket.listen(5)
+    
     inputs = [listen_socket]
     outputs = []
     stop = False
