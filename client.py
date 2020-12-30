@@ -68,7 +68,7 @@ def play_with_server(server_address, my_port):
     stop = False
     while 1:
         readable, writable, exceptional = select.select(inputs, outputs, [],1)
-        print(readable)
+        # print(readable)
         for s in readable:
             if s is listen_socket:  # New client is trying to connect
                 connection, client_address = s.accept()

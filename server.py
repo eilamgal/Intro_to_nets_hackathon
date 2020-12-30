@@ -146,7 +146,7 @@ Group 1:
                 socket_ips[connection] = client_address[0]
 
             else:  
-                data = s.recv(8)
+                data = s.recv(1)
                 # print(data)
                 if data:
                     teams_dictionary[socket_ips[connection]] = (teams_dictionary[socket_ips[connection]][0],teams_dictionary[socket_ips[connection]][1],teams_dictionary[socket_ips[connection]][2]+1)
