@@ -3,8 +3,8 @@ import socket
 import time
 import sys
 import select
-import tty
-import termios
+# import tty
+# import termios
 
 
 def _is_data():
@@ -38,7 +38,9 @@ def connect_to_server(server_address):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect(server_address)
         client_socket.send(b'Moshiki\n')
+
         print("connected successfully")
+
         return client_socket
     except ConnectionRefusedError as e:
         print("Could not send team name! Trying to find a different server...", e)

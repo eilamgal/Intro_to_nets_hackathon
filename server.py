@@ -2,9 +2,10 @@ import struct
 import select, socket, queue, time
 import scapy
 import concurrent.futures
+import itertools
 
 TCP_PORT= 2018
-TIME_LIMIT = 10
+TIME_LIMIT = 5
 
 def broadcast(time_limit=TIME_LIMIT, interval=0.6):
     print("Broadcasting")
@@ -45,9 +46,9 @@ def listen_for_clients(time_limit=TIME_LIMIT):
     server.listen(5)
     inputs = [server]
     team_names = {}  # {team_ip : team_name}
-
+    print(server)
     while inputs and time.time() - start_time < time_limit:  # 
-        print("loop")
+        # print(rainbow("loop"))
         readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time))) 
         for s in readable:
             if s is server:  # New client is trying to connect
@@ -59,9 +60,66 @@ def listen_for_clients(time_limit=TIME_LIMIT):
 
             else:  # The client should sent team's name
                 data = s.recv(1024)
+                # print("data:", data)
                 if team_names[s][0] == None:
                     if data:
-                        team_names[s] = (str(data, "utf-8")[0:-1], team_names[s][1])
+                        team_names[s] = (str(data,"utf-8")[0:-1], team_names[s][1])
+                        # print(team_names)       
+                    else:
+                        inputs.remove(s)
+                        s.close()
+                else:
+                    if data:
+                        print("Unexpected data from client")
+
+        for s in exceptional:
+            inputs.remove(s)
+            s.close()
+    if (len(inputs)>=3):
+        group1 = [team_names[0::2]]
+        group2 = [team_names[1::2]]
+
+    for open_socket in inputs:
+        if open_socket != server:
+            open_socket.sendall()
+        open_socket.setblocking(1)
+        open_socket.close()
+    return team_names.values()
+
+def start_new_match(team_names, time_limit=TIME_LIMIT):
+    print("Playing")
+    start_time = time.time()
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setblocking(0)
+
+    while True and time.time() - start_time < time_limit:
+        try:
+            server.bind(('', TCP_PORT))
+            break
+        except Exception as massage: 
+            print('Bind failed. Message', massage)
+            time.sleep(1)
+
+    server.listen(5)
+    inputs = [server]
+    team_counter = {}  # {team_ip : team_name}
+
+    while inputs and time.time() - start_time < time_limit:  # 
+        # print("loop")
+        readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time))) 
+        for s in readable:
+            if s is server:  # New client is trying to connect
+                connection, client_address = s.accept()
+                print(client_address[0], "connected")
+                connection.setblocking(0)
+                inputs.append(connection)
+                team_names[connection] = (0, client_address[0])
+
+            else:  # The client should sent team's name
+                data = s.recv(1024)
+                if team_names[s][0] == None:
+                    if data:
+                        team_names[s] = (str(data,"utf-8")[0:-1], team_names[s][1])
                         # print(team_names)       
                     else:
                         inputs.remove(s)
@@ -75,19 +133,14 @@ def listen_for_clients(time_limit=TIME_LIMIT):
         for s in exceptional:
             inputs.remove(s)
             s.close()
-
+    print(inputs)
     server.setblocking(1)
     server.close()
 
     return team_names.values()
 
-def start_new_match(team_names):
-    start_time = time.time()
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setblocking(0)
-    server.bind(('', TCP_PORT))
-    server.listen(2)
-    inputs = [server]
+
+
 
 
 # def listen_for_clients():
@@ -138,16 +191,19 @@ def start_new_match(team_names):
 #             s.close()
 #             del team_counters[s]
 
+def rainbow(text):
+    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1,4)]
+    rainbow = itertools.cycle(colors)
+    letters = [next(rainbow).format(L) for L in text]
+    return ''.join(letters)
 
 if __name__ == "__main__":
-    timeout = TIME_LIMIT
-    # broadcast(2)
-    # team_names = listen_for_clients(10)
-    while 1:
+
+    # while 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            broadcast = executor.submit(broadcast, timeout)
+            broadcast = executor.submit(broadcast)
             # print(broadcast.running)
-            teams_future = executor.submit(listen_for_clients, timeout)
+            teams_future = executor.submit(listen_for_clients)
             # print(teams_future.running)
             team_names = teams_future.result()
 
