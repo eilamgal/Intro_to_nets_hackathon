@@ -69,6 +69,7 @@ def play_with_server(server_address, end_message_socket):
                 keys_socket.setblocking(0)
                 keys_socket.connect(server_address)
                 c = sys.stdin.read(1)
+                print(c)
                 keys_socket.send(bytes(c))
 
         for open_socket in inputs:
