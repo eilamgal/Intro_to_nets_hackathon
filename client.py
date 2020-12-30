@@ -26,7 +26,7 @@ def connect_to_server(server_address):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect(server_address)
     client_socket.send(b'Moshiki\n')
-    # print("connected successfully")
+    print("connected successfully")
     return client_socket
 
 
