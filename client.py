@@ -15,7 +15,7 @@ def look_for_server():
             cookie, msg_type, port_number  = struct.unpack('IBH', data)
             if cookie == 0xfeedbeef and msg_type == 0x2 and port_number > 0:
                 print("received ", hex(cookie), hex(msg_type), port_number,"from", addr[0])
-                return addr[0]
+                return addr[0], port_number
             else:
                 print("Bad argument received!")
         except (OSError, struct.error) : 

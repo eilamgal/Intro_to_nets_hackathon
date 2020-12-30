@@ -1,8 +1,8 @@
 import struct
 import socket
 import time
-import scapy
 import queue
+import scapy
 
 
 def broadcast(time_limit=10, interval=1, tcp_port=40440):
