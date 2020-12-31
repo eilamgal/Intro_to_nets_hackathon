@@ -13,9 +13,8 @@ TIME_LIMIT = 10
 
 def broadcast(time_limit=TIME_LIMIT, interval=1):
     ip = '<broadcast>' if os.name == 'nt' else get_if_addr('eth1')
-    print('ip:', ip)
 
-    print("Broadcasting")
+    print(rainbow("Server started, listening on ip address"), ip)
     start_time = time.time()
 
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -25,12 +24,9 @@ def broadcast(time_limit=TIME_LIMIT, interval=1):
     udp_server.settimeout(0.3)
 
     while time.time() - start_time < time_limit:
-        print('here')
         packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
-        print(packed)
         try:
             udp_server.sendto(packed, (ip, 13117))  # TODO - check address
-            print('sent')
         except socket.timeout:
             print("Broadcast timout!")
         time.sleep(interval)
@@ -176,7 +172,7 @@ Group 1:
 
 
 def rainbow(text):
-    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1, 7)]
+    colors = ['\033[3{};1m{{}}\033[0m'.format(n) for n in range(1, 4)]
     rainbow = itertools.cycle(colors)
     letters = [next(rainbow).format(L) for L in text]
     return ''.join(letters)
