@@ -19,7 +19,7 @@ def _is_data():
         return msvcrt.kbhit()
 
 def look_for_server():
-    scapy.get_if_addr('eth1')
+    # scapy.get_if_addr('eth1')
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
     # Set broadcasting mode
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
