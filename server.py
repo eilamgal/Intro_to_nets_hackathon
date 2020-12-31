@@ -8,7 +8,7 @@ import itertools
 
 TCP_PORT = 2018
 TIME_LIMIT = 10
-# scapy.get_if_addr('eth1')
+scapy.get_if_addr('eth1')
 
 
 def broadcast(time_limit=TIME_LIMIT, interval=1):
