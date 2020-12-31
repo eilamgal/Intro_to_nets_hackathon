@@ -8,12 +8,12 @@ import itertools
 
 TCP_PORT = 2018
 TIME_LIMIT = 10
+# scapy.get_if_addr('eth1')
 
 
-def broadcast(time_limit=TIME_LIMIT, interval=0.1):
+def broadcast(time_limit=TIME_LIMIT, interval=1):
     print("Broadcasting")
     start_time = time.time()
-    # scapy.get_if_addr('eth1')
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
     udp_server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -79,12 +79,12 @@ def listen_for_clients(time_limit=TIME_LIMIT):
         for s in exceptional:
             inputs.remove(s)
             s.close()
-    
+
     return team_names, inputs, server
 
 
 def start_new_match(team_names, sockets, server, time_limit=TIME_LIMIT):
-    print(team_names)
+    # print(team_names)
     group1 = []
     group2 = []
 
@@ -186,6 +186,6 @@ if __name__ == "__main__":
             team_names, sockets, server = teams_future.result()
 
         if len(team_names) >= 1:
-            print('new match')
+            # print('new match')
             start_new_match(team_names, sockets, server)
         # time.sleep(0.1)
