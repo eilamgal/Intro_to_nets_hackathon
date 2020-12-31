@@ -136,7 +136,7 @@ Group 1:
 
     while inputs and time.time() - start_time < time_limit:  # 
         # print("loop")
-        readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time))) 
+        readable, writable, exceptional = select.select(inputs, [], inputs, 0)  #(time_limit - (time.time() - start_time)) 
         for s in readable:
             if s is server:  # New client is trying to connect
                 connection, client_address = s.accept()
@@ -159,7 +159,7 @@ Group 1:
     for address in end_addresses:
         open_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         open_socket.connect(address)
-        open_socket.sendall(bytes("goodbye","utf-8"))
+        open_socket.sendall(bytes("goodbye","utf-8")) #TODO
         open_socket.setblocking(1)
         open_socket.close()
 
@@ -168,56 +168,6 @@ Group 1:
     server.setblocking(1)
     server.close()
 
-
-
-
-# def listen_for_clients():
-#     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#     server.setblocking(0)
-#     server.bind(('localhost', 50000))
-#     server.listen(5)
-#     inputs = [server]
-#     outputs = []
-#     team_name = {}
-#     team_counters = {}
-#     while inputs:
-#         readable, writable, exceptional = select.select(inputs, [], inputs)
-#         for s in readable:
-#             if s is server:
-#                 connection, client_address = s.accept()
-#                 connection.setblocking(0)
-#                 inputs.append(connection)
-#                 team_counters[client_address] = 0
-#                 team_name[client_address] = None
-#             else:
-#                 data, client_address = s.recvfrom(1024)
-#                 if team_name[client_address] == None:
-#                     if data:
-#                         team_name[client_address] = data         
-#                     else:
-#                         inputs.remove(s)
-#                         s.close()
-#                 else:
-#                     if data:
-#                         team_counters[client_address] += 1
-#                     else:
-#                         inputs.remove(s)
-#                         s.close()
-
-#         for s in writable:
-#             try:
-#                 next_msg = team_counters[s].get_nowait()
-#             except Queue.Empty:
-#                 outputs.remove(s)
-#             else:
-#                 s.send(next_msg)
-
-#         for s in exceptional:
-#             inputs.remove(s)
-#             if s in outputs:
-#                 outputs.remove(s)
-#             s.close()
-#             del team_counters[s]
 
 def rainbow(text):
     colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1,7)]

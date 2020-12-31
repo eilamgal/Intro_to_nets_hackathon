@@ -3,14 +3,20 @@ import socket
 import time
 import sys
 import select
-import tty
-import termios
+import os
+if os.name != 'nt':
+    import tty
+    import termios
+else:
+    import msvcrt
 
 
 def _is_data():
-    flag =select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
-    # print('is data:',flag)
-    return flag
+    if os.name != 'nt':
+        return select.select([sys.stdin], [], [], 0)[0] != []
+    else:
+        return msvcrt.kbhit()
+
 
 
 def look_for_server():
@@ -27,6 +33,7 @@ def look_for_server():
             if cookie == 0xfeedbeef and msg_type == 0x2 and port_number == 2018:  #  == 2018
                 print("received ", hex(cookie), hex(msg_type), port_number,"from", addr[0])
                 return addr[0], port_number
+            time.sleep(0.1)
             # else:
                 # print("Bad argument received!")
         except (OSError, struct.error) : 
@@ -53,9 +60,9 @@ def connect_to_server(server_address):
         # print("connected successfully")
 
         return port
-    except ConnectionRefusedError as e:
+    except Exception as e:
         print("Could not send team name! Trying to find a different server...", e)
-        return None
+        return 0
 
 
 def play_with_server(server_address, my_port):
@@ -67,7 +74,7 @@ def play_with_server(server_address, my_port):
     outputs = []
     stop = False
     while 1:
-        readable, writable, exceptional = select.select(inputs, outputs, [],1)
+        readable, writable, exceptional = select.select(inputs, outputs, [],0)
         # print(readable)
         for s in readable:
             if s is listen_socket:  # New client is trying to connect
@@ -91,7 +98,7 @@ def play_with_server(server_address, my_port):
             keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             keys_socket.connect(server_address)
             keys_socket.setblocking(0)
-            c = sys.stdin.read(1)
+            c = sys.stdin.read(1) if os.name != 'nt' else msvcrt.getch().decode('utf-8')
             # print(c)
             keys_socket.send(bytes(c,"utf-8"))
             keys_socket.close()                
@@ -102,13 +109,20 @@ def play_with_server(server_address, my_port):
 
 
 if __name__ == "__main__":
-    old_settings = termios.tcgetattr(sys.stdin)
-    try:
-        tty.setcbreak(sys.stdin.fileno())
-        server_connection = None
-        while(server_connection == None):
+    if os.name != 'nt':
+        old_settings = termios.tcgetattr(sys.stdin)
+        try:
+            tty.setcbreak(sys.stdin.fileno())
+            port = 0
+            while(port == 0):
+                server_address = look_for_server()
+                my_port = connect_to_server(server_address)
+                play_with_server(server_address, my_port)
+        finally:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+    else:
+        port = 0
+        while(port == 0):
             server_address = look_for_server()
             my_port = connect_to_server(server_address)
             play_with_server(server_address, my_port)
-    finally:
-        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
