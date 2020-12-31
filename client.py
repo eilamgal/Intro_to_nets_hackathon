@@ -10,6 +10,8 @@ if os.name != 'nt':
 else:
     import msvcrt
 
+TEAM_NAME = b'Moshiki\n'
+
 
 def _is_data():
     if os.name != 'nt':
@@ -17,27 +19,27 @@ def _is_data():
     else:
         return msvcrt.kbhit()
 
-def look_for_server():
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
+def look_for_server():
+    print("Client started, listening for offer requests...")
+    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     client.bind(('', 13117))
 
     while True:
         try:
-            # print('before address')
             data, addr = client.recvfrom(10)
             # print(data, addr)
-            cookie, msg_type, port_number  = struct.unpack('IBH', data)
-            if cookie == 0xfeedbeef and msg_type == 0x2: # and port_number == 2018
-                print("received ", hex(cookie), hex(msg_type), port_number, "from", addr[0])
+            cookie, msg_type, port_number = struct.unpack('IBH', data)
+            if cookie == 0xfeedbeef and msg_type == 0x2:  # and port_number == 2018
+                # print("received ", hex(cookie), hex(msg_type), port_number, "from", addr[0])
+                print("Received offer from", addr[0], ", attempting to connect...")
                 client.close()
                 return addr[0], port_number
-            time.sleep(0.1)
-        except (OSError, struct.error): 
-            time.sleep(0.1) 
-            continue
+        except Exception as e:
+            print("Error while listening for offers!", e)
+        time.sleep(0.1)
 
 
 def connect_to_server(server_address):
@@ -45,10 +47,10 @@ def connect_to_server(server_address):
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect(server_address)
-        client_socket.send(b'Moshiki\n')
+        client_socket.send(TEAM_NAME)
         port = client_socket.getsockname()[1]
         # print(port)
-        message = str(client_socket.recv(1024),"utf-8")
+        message = str(client_socket.recv(1024), "utf-8")
         print(message)
         return port
 

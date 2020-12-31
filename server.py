@@ -9,34 +9,41 @@ import itertools
 
 TCP_PORT = 2018
 TIME_LIMIT = 10
+BROADCAST_PORT = 13117
+BROADCAST_INTERVAL = 1
+MAGIC_COOKIE = 0xfeedbeef
+MESSAGE_TYPE = 0X2
+VIRTUAL_NETWORK = 'eth1'
 
 
-def broadcast(time_limit=TIME_LIMIT, interval=1):
-    ip = '<broadcast>' if os.name == 'nt' else get_if_addr('eth1')
+def broadcast(time_limit=TIME_LIMIT, interval=BROADCAST_INTERVAL):
+    """
+    Broadcast an offer message to waiting clients on the specified port
+    """
 
+    ip = '<broadcast>' if os.name == 'nt' else get_if_addr(VIRTUAL_NETWORK)
     print(rainbow("Server started, listening on ip address"), ip)
     start_time = time.time()
-
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
     udp_server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     # Set a timeout
     udp_server.settimeout(0.3)
 
+    packed_message = struct.pack('IBH', MAGIC_COOKIE, MESSAGE_TYPE, TCP_PORT)
     while time.time() - start_time < time_limit:
-        packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
         try:
-            udp_server.sendto(packed, (ip, 13117))  # TODO - check address
-        except socket.timeout:
-            print("Broadcast timout!")
+            udp_server.sendto(packed_message, (ip, BROADCAST_PORT))
+        except Exception as e:
+            print("Broadcasting error!", e)
         time.sleep(interval)
-    
     udp_server.close()
 
 
 def listen_for_clients(time_limit=TIME_LIMIT):
-    print("Listening")
-
+    """
+    Listen for clients that received the offer message and accept their connections
+    """
     start_time = time.time()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setblocking(0)
@@ -53,8 +60,7 @@ def listen_for_clients(time_limit=TIME_LIMIT):
     inputs = [server]
     team_names = {}  # {team_ip : team_name}
     print(server)
-    while inputs and time.time() - start_time < time_limit:  # 
-        # print(rainbow("loop"))
+    while inputs and time.time() - start_time < time_limit:
         readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time))) 
         for s in readable:
             if s is server:  # New client is trying to connect
@@ -118,7 +124,7 @@ Group 1:
     print(message)
     for open_socket in sockets:
         if open_socket != server:
-            open_socket.sendall(bytes(message, "utf-8"))
+            open_socket.sendall(bytes(rainbow(message), "utf-8"))
             open_socket.setblocking(1)
             end_addresses.append(open_socket.getpeername())
             open_socket.close()
@@ -171,7 +177,7 @@ Group 1:
 
 
 def rainbow(text):
-    colors = ['\033[3{};1;5m{{}}\033[0m'.format(n) for n in range(1, 4)]
+    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1, 4)]
     rainbow = itertools.cycle(colors)
     letters = [next(rainbow).format(L) for L in text]
     return ''.join(letters)
