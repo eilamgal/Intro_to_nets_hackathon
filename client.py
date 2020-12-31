@@ -81,11 +81,11 @@ def play_with_server(server_address, my_port):
         # print(readable)
         for s in readable:
             if s is listen_socket:  # New client is trying to connect
-                connection, client_address = s.accept()
-                # print(client_address[0], "connected")
-                connection.setblocking(0)
-                inputs.append(connection)
-                stop= True
+                # connection, client_address = s.accept()
+                # # print(client_address[0], "connected")
+                # connection.setblocking(0)
+                # inputs.append(connection)
+                # stop= True
                 inputs.remove(s)
                 s.close()
 
