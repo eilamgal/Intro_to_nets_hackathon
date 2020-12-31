@@ -13,7 +13,7 @@ TIME_LIMIT = 10
 def broadcast(time_limit=TIME_LIMIT, interval=0.1):
     print("Broadcasting")
     start_time = time.time()
-    print(scapy.get_if_addr('eth1'))
+    scapy.get_if_addr('eth1')
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
     udp_server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)

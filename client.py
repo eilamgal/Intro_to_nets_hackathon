@@ -4,6 +4,7 @@ import time
 import sys
 import select
 import os
+import scapy
 if os.name != 'nt':
     import tty
     import termios
@@ -17,10 +18,8 @@ def _is_data():
     else:
         return msvcrt.kbhit()
 
-
-
 def look_for_server():
-    
+    scapy.get_if_addr('eth1')
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
     # Set broadcasting mode
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
