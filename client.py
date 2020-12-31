@@ -21,10 +21,11 @@ def _is_data():
 def look_for_server():
     # ip = '' if os.name == 'nt' else get_if_addr('eth1')
     # print('ip:', ip)
-    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
-    # Set broadcasting mode
-    client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    client.bind(('', 13117))
+    # client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
+    # # Set broadcasting mode
+    # client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    # client.bind(('', 13117))
+    # client.listen(5)
 
     while True:
         try:
