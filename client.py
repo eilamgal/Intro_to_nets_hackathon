@@ -43,7 +43,7 @@ def look_for_server():
 
 
 def connect_to_server(server_address):
-    print(server_address)
+    # print(server_address)
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect(server_address)
@@ -64,6 +64,7 @@ def play_with_server(server_address, my_port):
     except Exception as e:
         print("Error trying to bind end message socket", e)
     listen_socket.listen(5)
+    listen_socket.settimeout(1)
     inputs = [listen_socket]
     outputs = []
     stop = False
@@ -84,7 +85,7 @@ def play_with_server(server_address, my_port):
                     print(str(data, "utf-8"))
                     s.close()
                     inputs.remove(s)
-                    # return
+                    return
 
             if _is_data() and not stop:
                 keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -93,6 +94,7 @@ def play_with_server(server_address, my_port):
                 c = sys.stdin.read(1) if os.name != 'nt' else msvcrt.getch().decode('utf-8')
                 keys_socket.send(bytes(c, "utf-8"))
                 keys_socket.close()
+            
         except Exception as e:
             print("Error while trying to send characters!", e)
 
