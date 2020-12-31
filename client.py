@@ -19,7 +19,7 @@ def _is_data():
         return msvcrt.kbhit()
 
 def look_for_server():
-    ip = '<broadcast>' if os.name == 'nt' else get_if_addr('eth1')
+    ip = '' if os.name == 'nt' else get_if_addr('eth1')
     print('ip:', ip)
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
     # Set broadcasting mode
