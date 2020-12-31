@@ -24,7 +24,7 @@ def broadcast(time_limit=TIME_LIMIT, interval=1):
         packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
         print(packed)
         try:
-            udp_server.sendto(packed, ('', 13117))  # TODO - check address
+            udp_server.sendto(packed, ('<broadcast>', 13117))  # TODO - check address
         except socket.timeout:
             print("Broadcast timout!")
         time.sleep(interval)
