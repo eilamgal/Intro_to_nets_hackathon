@@ -1,11 +1,14 @@
 import struct
-import select, socket, queue, time
+import select
+import socket
+import time
 import scapy
 import concurrent.futures
 import itertools
 
-TCP_PORT= 2018
+TCP_PORT = 2018
 TIME_LIMIT = 10
+
 
 def broadcast(time_limit=TIME_LIMIT, interval=0.1):
     print("Broadcasting")
@@ -14,13 +17,13 @@ def broadcast(time_limit=TIME_LIMIT, interval=0.1):
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
     udp_server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    # Set a timeout 
+    # Set a timeout
     udp_server.settimeout(0.3)
 
     while time.time() - start_time < time_limit:
         packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
         try:
-            udp_server.sendto(packed, ('<broadcast>', 13117))  #TODO - check address
+            udp_server.sendto(packed, ('<broadcast>', 13117))  # TODO - check address
         except socket.timeout:
             print("Broadcast timout!")
         time.sleep(interval)
@@ -63,7 +66,7 @@ def listen_for_clients(time_limit=TIME_LIMIT):
                 # print("data:", data)
                 if team_names[s][0] == None:
                     if data:
-                        team_names[s] = (str(data,"utf-8")[0:-1], team_names[s][1])
+                        team_names[s] = (str(data, "utf-8")[0:-1], team_names[s][1])
                         # print(team_names)       
                     else:
                         inputs.remove(s)
@@ -80,12 +83,12 @@ def listen_for_clients(time_limit=TIME_LIMIT):
 
 
 def start_new_match(team_names, sockets, server, time_limit=TIME_LIMIT):
-    print (team_names)
-    group1=[]
-    group2=[]
+    print(team_names)
+    group1 = []
+    group2 = []
 
-    for idx ,team in enumerate(team_names.values()):
-        if  idx%2==0:
+    for idx, team in enumerate(team_names.values()):
+        if idx % 2 == 0:
             group1.append(team)
         else:
             group2.append(team)
@@ -95,7 +98,6 @@ def start_new_match(team_names, sockets, server, time_limit=TIME_LIMIT):
     teams_dictionary = {}
     for team in group1 + group2:
         teams_dictionary[team[1]] = (team[0], 1 if team in group1 else 2, 0)
-    
     # print(teams_dictionary)
 
     message = """Welcome to Keyboard Spamming Battle Royale.
@@ -103,24 +105,21 @@ Group 1:
 =====
 """
     for team in group1:
-        message += team[0]+'\n' 
-
-    message +="Group 2:\n=====\n"
+        message += team[0]+'\n'
+    message += "Group 2:\n=====\n"
     for team in group2:
         message += team[0]+'\n'
-    
     message += "Start pressing keys on your keyboard as fast as you can!!"
 
     end_addresses = []
-    print(message) 
+    print(message)
     for open_socket in sockets:
         if open_socket != server:
-            open_socket.sendall(bytes(message,"utf-8"))
+            open_socket.sendall(bytes(message, "utf-8"))
             open_socket.setblocking(1)
             print(open_socket.getpeername())
             end_addresses.append(open_socket.getpeername())
             open_socket.close()
-
 
     # print("Playing")
     start_time = time.time()
@@ -134,9 +133,9 @@ Group 1:
     #     end_sockets.append(server.accept()[0])
     # server.setblocking(0)
 
-    while inputs and time.time() - start_time < time_limit:  # 
+    while inputs and time.time() - start_time < time_limit:
         # print("loop")
-        readable, writable, exceptional = select.select(inputs, [], inputs, 0)  #(time_limit - (time.time() - start_time)) 
+        readable, writable, exceptional = select.select(inputs, [], inputs, 0)  # (time_limit - (time.time() - start_time)) 
         for s in readable:
             if s is server:  # New client is trying to connect
                 connection, client_address = s.accept()
@@ -159,7 +158,7 @@ Group 1:
     for address in end_addresses:
         open_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         open_socket.connect(address)
-        open_socket.sendall(bytes("goodbye","utf-8")) #TODO
+        open_socket.sendall(bytes("goodbye", "utf-8"))  # TODO
         open_socket.setblocking(1)
         open_socket.close()
 
@@ -175,9 +174,9 @@ def rainbow(text):
     letters = [next(rainbow).format(L) for L in text]
     return ''.join(letters)
 
+
 if __name__ == "__main__":
-    
-    # while 1:
+    while 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             broadcast = executor.submit(broadcast)
             # print(broadcast.running)
@@ -186,12 +185,8 @@ if __name__ == "__main__":
             team_names, sockets, server = teams_future.result()
 
         # for team in team_names:
-        #     print(team[0])  
+        #     print(team[0])
         if len(team_names) >= 1:
             print('new match')
             start_new_match(team_names, sockets, server)
-
-        
-        # play()
-
-
+        time.sleep(0.1)
