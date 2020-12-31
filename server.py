@@ -8,12 +8,13 @@ import itertools
 
 TCP_PORT = 2018
 TIME_LIMIT = 10
-scapy.get_if_addr('eth1')
 
 
 def broadcast(time_limit=TIME_LIMIT, interval=1):
     print("Broadcasting")
     start_time = time.time()
+    scapy.get_if_addr('eth1')
+
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
     udp_server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
