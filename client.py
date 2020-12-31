@@ -4,7 +4,7 @@ import time
 import sys
 import select
 import os
-import scapy
+from scapy.arch import get_if_addr
 if os.name != 'nt':
     import tty
     import termios
@@ -19,11 +19,11 @@ def _is_data():
         return msvcrt.kbhit()
 
 def look_for_server():
-    # scapy.get_if_addr('eth1')
+    print('listening, network:', get_if_addr('eth1'))
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
     # Set broadcasting mode
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    client.bind(("", 13117))
+    client.bind((get_if_addr('eth1'), 13117))
 
     while True:
         try:

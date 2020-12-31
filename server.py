@@ -2,7 +2,7 @@ import struct
 import select
 import socket
 import time
-import scapy
+from scapy.arch import get_if_addr
 import concurrent.futures
 import itertools
 
@@ -13,7 +13,7 @@ TIME_LIMIT = 10
 def broadcast(time_limit=TIME_LIMIT, interval=1):
     print("Broadcasting")
     start_time = time.time()
-    scapy.get_if_addr('eth1')
+    print(get_if_addr('eth1'))
 
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
@@ -25,7 +25,7 @@ def broadcast(time_limit=TIME_LIMIT, interval=1):
         packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
         print(packed)
         try:
-            udp_server.sendto(packed, ('<broadcast>', 13117))  # TODO - check address
+            udp_server.sendto(packed, (get_if_addr('eth1'), 13117))  # TODO - check address
         except socket.timeout:
             print("Broadcast timout!")
         time.sleep(interval)
