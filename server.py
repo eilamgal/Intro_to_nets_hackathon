@@ -184,8 +184,6 @@ if __name__ == "__main__":
             # print(teams_future.running)
             team_names, sockets, server = teams_future.result()
 
-        # for team in team_names:
-        #     print(team[0])
         if len(team_names) >= 1:
             print('new match')
             start_new_match(team_names, sockets, server)
