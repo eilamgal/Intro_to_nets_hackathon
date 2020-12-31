@@ -34,6 +34,7 @@ def look_for_server():
             cookie, msg_type, port_number  = struct.unpack('IBH', data)
             if cookie == 0xfeedbeef and msg_type == 0x2: # and port_number == 2018:  #  == 2018
                 print("received ", hex(cookie), hex(msg_type), port_number,"from", addr[0])
+                client.close()
                 return addr[0], port_number
             time.sleep(0.1)
             # else:
