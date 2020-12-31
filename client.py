@@ -49,11 +49,9 @@ def connect_to_server(server_address):
         client_socket.connect(server_address)
         client_socket.send(TEAM_NAME)
         port = client_socket.getsockname()[1]
-        # print(port)
         message = str(client_socket.recv(1024), "utf-8")
         print(message)
         return port
-
     except Exception as e:
         print("Could not send team name! Trying to find a different server...", e)
         return 0
@@ -61,41 +59,42 @@ def connect_to_server(server_address):
 
 def play_with_server(server_address, my_port):
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    listen_socket.bind(('', my_port))
+    try:
+        listen_socket.bind(('', my_port))
+    except Exception as e:
+        print("Error trying to bind end message socket", e)
     listen_socket.listen(5)
-
     inputs = [listen_socket]
     outputs = []
     stop = False
     while 1:
-        readable, writable, exceptional = select.select(inputs, outputs, [],0)
-        # print(readable)
-        for s in readable:
-            if s is listen_socket:  # New client is trying to connect
-                connection, client_address = s.accept()
-                # print(client_address[0], "connected")
-                connection.setblocking(0)
-                inputs.append(connection)
-                stop = True
-                inputs.remove(s)
-                s.close()
+        try:
+            readable, writable, exceptional = select.select(inputs, outputs, [], 0)
+            for s in readable:
+                if s is listen_socket:  # Server is trying to connect and send end message
+                    connection, client_address = s.accept()
+                    connection.setblocking(0)
+                    inputs.append(connection)
+                    stop = True
+                    inputs.remove(s)
+                    s.close()
 
-            else:  # The client should sent team's name
-                # print("receiving")
-                data = s.recv(1024)
-                print(str(data, "utf-8"))
-                s.close()
-                inputs.remove(s)
-                return
+                else:  # The client should receive end message
+                    data = s.recv(1024)
+                    print(str(data, "utf-8"))
+                    s.close()
+                    inputs.remove(s)
+                    # return
 
-        if _is_data() and not stop:
-            keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            keys_socket.connect(server_address)
-            keys_socket.setblocking(0)
-            c = sys.stdin.read(1) if os.name != 'nt' else msvcrt.getch().decode('utf-8')
-            # print(c)
-            keys_socket.send(bytes(c, "utf-8"))
-            keys_socket.close()               
+            if _is_data() and not stop:
+                keys_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                keys_socket.connect(server_address)
+                keys_socket.setblocking(0)
+                c = sys.stdin.read(1) if os.name != 'nt' else msvcrt.getch().decode('utf-8')
+                keys_socket.send(bytes(c, "utf-8"))
+                keys_socket.close()
+        except Exception as e:
+            print("Error while trying to send characters!", e)
 
     for open_socket in inputs:
         open_socket.setblocking(1)

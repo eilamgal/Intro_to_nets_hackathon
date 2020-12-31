@@ -14,6 +14,7 @@ BROADCAST_INTERVAL = 1
 MAGIC_COOKIE = 0xfeedbeef
 MESSAGE_TYPE = 0X2
 VIRTUAL_NETWORK = 'eth1'
+MIN_TEAMS_TO_PLAY = 1
 
 
 def broadcast(time_limit=TIME_LIMIT, interval=BROADCAST_INTERVAL):
@@ -59,7 +60,7 @@ def listen_for_clients(time_limit=TIME_LIMIT):
     server.listen(5)
     inputs = [server]
     team_names = {}  # {team_ip : team_name}
-    print(server)
+    
     while inputs and time.time() - start_time < time_limit:
         readable, writable, exceptional = select.select(inputs, [], inputs, (time_limit - (time.time() - start_time))) 
         for s in readable:
@@ -87,26 +88,24 @@ def listen_for_clients(time_limit=TIME_LIMIT):
         for s in exceptional:
             inputs.remove(s)
             s.close()
+        time.sleep(0.1)
 
     return team_names, inputs, server
 
 
 def start_new_match(team_names, sockets, server, time_limit=TIME_LIMIT):
-    # print(team_names)
     group1 = []
     group2 = []
 
-    for idx, team in enumerate(team_names.values()):
+    for idx, team in enumerate(team_names.values()):  #Split teams into groups
         if idx % 2 == 0:
             group1.append(team)
         else:
             group2.append(team)
 
-    # print("gr1:", group1)
-
     teams_dictionary = {}
     for team in group1 + group2:
-        teams_dictionary[team[1]] = (team[0], 1 if team in group1 else 2, 0)
+        teams_dictionary[team[1]] = (team[0], 1 if team in group1 else 2, 0)  # (team_name, group#, counter)
     # print(teams_dictionary)
 
     message = """Welcome to Keyboard Spamming Battle Royale.
@@ -120,79 +119,93 @@ Group 1:
         message += team[0]+'\n'
     message += "Start pressing keys on your keyboard as fast as you can!!"
 
-    end_addresses = []
+    end_addresses = []  # Save clients' addresses to send end messages through
     print(message)
     for open_socket in sockets:
-        if open_socket != server:
-            open_socket.sendall(bytes(rainbow(message), "utf-8"))
-            open_socket.setblocking(1)
-            end_addresses.append(open_socket.getpeername())
-            open_socket.close()
+        try:
+            if open_socket != server:
+                open_socket.sendall(bytes(message, "utf-8"))
+                open_socket.setblocking(1)
+                end_addresses.append(open_socket.getpeername())
+                open_socket.close()
+        except Exception as e:
+            print("Error while sending starting messages!", e)
 
-    # print("Playing")
     start_time = time.time()
 
     inputs = [server]
     socket_ips = {}
 
-    # end_sockets = []
-    # server.setblocking(1)
-    # for i in range(len(teams_dictionary.keys())):
-    #     end_sockets.append(server.accept()[0])
-    # server.setblocking(0)
-
     while inputs and time.time() - start_time < time_limit:
-        # print("loop")
-        readable, writable, exceptional = select.select(inputs, [], inputs, 0)  # (time_limit - (time.time() - start_time)) 
-        for s in readable:
-            if s is server:  # New client is trying to connect
-                connection, client_address = s.accept()
-                # print(client_address[0], "connected")
-                connection.setblocking(0)
-                inputs.append(connection)
-                socket_ips[connection] = client_address[0]
+        try:
+            readable, writable, exceptional = select.select(inputs, [], inputs, 0)
+            for s in readable:
+                if s is server:  # New client is trying to connect
+                    connection, client_address = s.accept()
+                    # print(client_address[0], "connected")
+                    connection.setblocking(0)
+                    inputs.append(connection)
+                    socket_ips[connection] = client_address[0]
 
-            else:  
-                data = s.recv(1)
-                # print(data)
-                if data:
-                    teams_dictionary[socket_ips[connection]] = (teams_dictionary[socket_ips[connection]][0],teams_dictionary[socket_ips[connection]][1],teams_dictionary[socket_ips[connection]][2]+1)
+                else:  # Client pressed a key
+                    data = s.recv(1)
+                    # print(data)
+                    if data:
+                        teams_dictionary[socket_ips[connection]] = (teams_dictionary[socket_ips[connection]][0],teams_dictionary[socket_ips[connection]][1],teams_dictionary[socket_ips[connection]][2]+1)
+                    inputs.remove(s)
+                    s.close()
+            for s in exceptional:
                 inputs.remove(s)
                 s.close()
-        for s in exceptional:
-            inputs.remove(s)
-            s.close()
+        except Exception as e:
+            print("Error while receiving keys!", e)
 
+    end_message = get_winner_annoucement(teams_dictionary.values())
     for address in end_addresses:
-        open_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        open_socket.connect(address)
-        open_socket.sendall(bytes("goodbye", "utf-8"))  # TODO
-        open_socket.setblocking(1)
-        open_socket.close()
-
-    print(teams_dictionary)
-    # print(inputs)
+        try:
+            open_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            open_socket.connect(address)
+            open_socket.sendall(bytes(end_message, "utf-8"))  # TODO
+            open_socket.setblocking(1)
+            open_socket.close()
+        except Exception as e:
+            print("Error while sending end messages!", e)
+    # print(teams_dictionary)
     server.setblocking(1)
     server.close()
 
 
+def get_winner_annoucement(teams_dictionary):
+    group1_counter = 0
+    group2_counter = 0
+    for team in teams_dictionary:
+        if team[1] == 1:
+            group1_counter += team[2]
+        else:
+            group2_counter += team[2]
+    winner_annoucement = "Game Over!\n Group 1 typed in {} characters. Group 2 typed in {} characters.\n".format(group1_counter,group2_counter)
+    if group1_counter == group2_counter:
+        winner_annoucement += "Its a tie!!"
+    else:
+        winner_annoucement += "Group {} wins!".format(1 if group1_counter > group2_counter else 2)
+    return winner_annoucement
+
+
 def rainbow(text):
-    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(2, 5)]
+    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1,4)]
     rainbow = itertools.cycle(colors)
     letters = [next(rainbow).format(L) for L in text]
     return ''.join(letters)
 
 
 if __name__ == "__main__":
-    # while 1:
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        broadcast = executor.submit(broadcast)
-        # print(broadcast.running)
-        teams_future = executor.submit(listen_for_clients)
-        # print(teams_future.running)
-        team_names, sockets, server = teams_future.result()
+    while 1:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            broadcast = executor.submit(broadcast)
+            teams_future = executor.submit(listen_for_clients)
+            team_names, sockets, server = teams_future.result()
+            executor.shutdown(wait=True)
 
-    if len(team_names) >= 1:
-        # print('new match')
-        start_new_match(team_names, sockets, server)
-    # time.sleep(0.1)
+        if len(team_names) >= MIN_TEAMS_TO_PLAY:
+            start_new_match(team_names, sockets, server)
+        time.sleep(0.1)
