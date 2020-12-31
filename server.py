@@ -120,7 +120,6 @@ Group 1:
         if open_socket != server:
             open_socket.sendall(bytes(message, "utf-8"))
             open_socket.setblocking(1)
-            print(open_socket.getpeername())
             end_addresses.append(open_socket.getpeername())
             open_socket.close()
 
@@ -172,7 +171,7 @@ Group 1:
 
 
 def rainbow(text):
-    colors = ['\033[3{};1m{{}}\033[0m'.format(n) for n in range(1, 4)]
+    colors = ['\033[3{};1;5m{{}}\033[0m'.format(n) for n in range(1, 4)]
     rainbow = itertools.cycle(colors)
     letters = [next(rainbow).format(L) for L in text]
     return ''.join(letters)
