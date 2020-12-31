@@ -2,6 +2,7 @@ import struct
 import select
 import socket
 import time
+import os
 from scapy.arch import get_if_addr
 import concurrent.futures
 import itertools
@@ -11,6 +12,9 @@ TIME_LIMIT = 10
 
 
 def broadcast(time_limit=TIME_LIMIT, interval=1):
+    ip = '<broadcast>' if os.name == 'nt' else get_if_addr('eth1')
+    print('ip:', ip)
+
     print("Broadcasting")
     start_time = time.time()
 
@@ -21,10 +25,12 @@ def broadcast(time_limit=TIME_LIMIT, interval=1):
     udp_server.settimeout(0.3)
 
     while time.time() - start_time < time_limit:
+        print('here')
         packed = struct.pack('IBH', 0xfeedbeef, 0x2, TCP_PORT)
         print(packed)
         try:
-            udp_server.sendto(packed, (get_if_addr('eth1'), 13117))  # TODO - check address
+            udp_server.sendto(packed, (ip, 13117))  # TODO - check address
+            print('sent')
         except socket.timeout:
             print("Broadcast timout!")
         time.sleep(interval)
@@ -178,14 +184,14 @@ def rainbow(text):
 
 if __name__ == "__main__":
     # while 1:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            broadcast = executor.submit(broadcast)
-            # print(broadcast.running)
-            teams_future = executor.submit(listen_for_clients)
-            # print(teams_future.running)
-            team_names, sockets, server = teams_future.result()
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        broadcast = executor.submit(broadcast)
+        # print(broadcast.running)
+        teams_future = executor.submit(listen_for_clients)
+        # print(teams_future.running)
+        team_names, sockets, server = teams_future.result()
 
-        if len(team_names) >= 1:
-            # print('new match')
-            start_new_match(team_names, sockets, server)
-        # time.sleep(0.1)
+    if len(team_names) >= 1:
+        # print('new match')
+        start_new_match(team_names, sockets, server)
+    # time.sleep(0.1)
