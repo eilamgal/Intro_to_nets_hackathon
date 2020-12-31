@@ -169,14 +169,14 @@ Group 1:
 
 
 def rainbow(text):
-    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1,7)]
+    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1, 7)]
     rainbow = itertools.cycle(colors)
     letters = [next(rainbow).format(L) for L in text]
     return ''.join(letters)
 
 
 if __name__ == "__main__":
-    while 1:
+    # while 1:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             broadcast = executor.submit(broadcast)
             # print(broadcast.running)
@@ -187,4 +187,4 @@ if __name__ == "__main__":
         if len(team_names) >= 1:
             print('new match')
             start_new_match(team_names, sockets, server)
-        time.sleep(0.1)
+        # time.sleep(0.1)
