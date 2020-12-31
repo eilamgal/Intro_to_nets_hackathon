@@ -37,8 +37,8 @@ def look_for_server():
             time.sleep(0.1)
             # else:
                 # print("Bad argument received!")
-        except (OSError, struct.error) : 
-            # print("Unexpected broadcast message!")
+        except (OSError, struct.error): 
+            time.sleep(0.1) 
             continue
 
 
@@ -119,6 +119,7 @@ if __name__ == "__main__":
                 server_address = look_for_server()
                 my_port = connect_to_server(server_address)
                 play_with_server(server_address, my_port)
+                time.sleep(0.1)
         finally:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
     else:
@@ -127,3 +128,4 @@ if __name__ == "__main__":
             server_address = look_for_server()
             my_port = connect_to_server(server_address)
             play_with_server(server_address, my_port)
+            time.sleep(0.1)

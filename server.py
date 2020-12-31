@@ -13,7 +13,6 @@ TIME_LIMIT = 10
 def broadcast(time_limit=TIME_LIMIT, interval=1):
     print("Broadcasting")
     start_time = time.time()
-    print(get_if_addr('eth1'))
 
     udp_server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Set broadcasting mode
