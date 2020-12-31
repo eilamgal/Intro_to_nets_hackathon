@@ -177,7 +177,7 @@ Group 1:
 
 
 def rainbow(text):
-    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(1, 4)]
+    colors = ['\033[3{}m{{}}\033[0m'.format(n) for n in range(2, 5)]
     rainbow = itertools.cycle(colors)
     letters = [next(rainbow).format(L) for L in text]
     return ''.join(letters)
