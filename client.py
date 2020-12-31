@@ -21,11 +21,10 @@ def _is_data():
 def look_for_server():
     # ip = '' if os.name == 'nt' else get_if_addr('eth1')
     # print('ip:', ip)
-    # client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
-    # # Set broadcasting mode
-    # client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    # client.bind(('', 13117))
-    # client.listen(5)
+    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)  # UDP
+    # Set broadcasting mode
+    client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    client.bind(('', 13117))
 
     while True:
         try:
@@ -71,8 +70,8 @@ def connect_to_server(server_address):
 
 def play_with_server(server_address, my_port):
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    listen_socket.bind(('', my_port))
-    listen_socket.listen(5)
+    # listen_socket.bind(('', my_port))
+    # listen_socket.listen(5)
 
     inputs = [listen_socket]
     outputs = []
